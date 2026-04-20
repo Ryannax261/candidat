@@ -1,0 +1,58 @@
+🟢 Front-office (interface utilisateur)
+1️⃣ Saisie de la demande
+ Champ ID demande (input)
+ onblur : vérifier si la demande existe → sinon message d’erreur
+ Auto-remplir les infos de la demande validée :
+Nom du client
+Date de la demande
+Lieu
+District
+
+2️⃣ Choix du type de devis
+ Liste déroulante TypeDevis (récupérée depuis t_typedevis)
+ La sélection sera envoyée au back-office avec le devis
+
+3️⃣ Saisie des détails du devis
+ Table dynamique pour les détails :
+Libelle (textfield)
+PU (Prix Unitaire, number)
+Qtt (Quantité, number)
+Total par ligne calculé automatiquement (PU * Qtt)
+Bouton + pour ajouter une ligne
+Bouton X pour supprimer une ligne
+ Montant total du devis calculé automatiquement (somme des totaux par ligne)
+
+4️⃣ Bouton “Enregistrer Devis”
+ Envoie en POST le devis avec tous ses détails
+ Peut envoyer en JSON ou @ModelAttribute pour Spring MVC
+
+🔵 Back-office (Spring Boot)
+1️⃣ Controller
+ GET /devis/new → afficher formulaire + liste des types de devis + option de validation de la demande
+ POST /devis/save → recevoir devis + liste de DetailDevis
+ Valider que la demande existe
+ Valider PU et Qtt > 0
+ Valider qu’il y a au moins une ligne de détail
+
+2️⃣ Service (transactionnel)
+ Méthode saveDevis(Devis devis, List<DetailDevis> details) annotée @Transactional
+ Vérifier la demande
+ Sauvegarder le devis
+ Boucler sur chaque DetailDevis :
+ Lier le devis
+ Calculer le total ligne (PU * Qtt)
+ Sauvegarder en base
+ Calculer montant total du devis
+ Sauvegarder le devis avec le montant total
+❌ Si une erreur survient (demande inexistante, PU/Qtt invalide, DB error) → rollback automatique
+
+3️⃣ Repository
+ DevisRepository → CRUD sur t_devis
+ DetailDevisRepository → CRUD sur t_detail_devis
+ TypeDevisRepository → récupérer liste pour dropdown
+
+4️⃣ Validations (avant commit)
+ Demande existe
+ PU / Qtt > 0
+ Au moins une ligne de detail
+ Montant total = somme des lignes
