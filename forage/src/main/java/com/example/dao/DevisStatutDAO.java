@@ -8,4 +8,5 @@ import com.example.model.DevisStatut;
 @Repository
 public interface DevisStatutDAO extends JpaRepository<DevisStatut, Integer> {
     List<DevisStatut> findAllByOrderByIdDesc();
+    List<DevisStatut> findByDevisDemandeIdOrderByIdDesc(int demandeId);
 }

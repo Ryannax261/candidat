@@ -10,77 +10,64 @@
 </head>
 <body>
     <jsp:include page="../../layout/navbar.jsp" />
-    <div class="container" style="max-width: 900px;">
+    <div class="container">
         <div class="header-actions">
-            <h1>Saisie du Devis</h1>
+            <h1>Nouveau Devis</h1>
             <a href="${pageContext.request.contextPath}/admin/devis" class="btn btn-secondary">Retour</a>
         </div>
         
-        <div class="card" style="padding: 1.5rem;">
+        <div class="card">
             <form id="devisForm" action="${pageContext.request.contextPath}/admin/devis/save" method="post">
                 <input type="hidden" name="id" value="${devis.id}">
                 
-                <div style="display: flex; gap: 1.5rem; margin-bottom: 0.5rem;">
-                    <div class="form-group" style="flex: 1;">
-                        <label for="demandeId">ID Demande</label>
-                        <input type="number" id="demandeId" name="demandeId" class="form-control" required 
-                               onblur="checkDemande(this.value)">
-                        <div id="demandeError" class="error-message">ID Demande introuvable.</div>
-                    </div>
-                    
-                    <div class="form-group" style="flex: 1;">
-                        <label for="typeDevisId">Type de Devis</label>
-                        <select id="typeDevisId" name="typeDevisId" class="form-control" required>
-                            <option value="">Sélectionnez un type</option>
-                            <c:forEach var="t" items="${types}">
-                                <option value="${t.id}">${t.nom}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="demandeId">ID de la Demande</label>
+                    <input type="number" id="demandeId" name="demandeId" required 
+                           onblur="checkDemande(this.value)">
+                    <div id="demandeError" style="color:red; display:none;">ID introuvable</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="typeDevisId">Type de Devis</label>
+                    <select id="typeDevisId" name="typeDevisId" required>
+                        <option value="">-- Choisir --</option>
+                        <c:forEach var="t" items="${types}">
+                            <option value="${t.id}">${t.nom}</option>
+                        </c:forEach>
+                    </select>
                 </div>
 
-                <!-- Ces informations sont remplies dynamiquement avec JavaScript (la fonction checkDemande plus bas) -->
-                <div id="demandeInfo" class="info-card">
-                    <h4>Informations de la demande</h4>
-                    <p><strong>Client :</strong> <span id="infoClient"></span></p>
-                    <p><strong>Date :</strong> <span id="infoDate"></span></p>
-                    <p><strong>Lieu/District :</strong> <span id="infoDistrict"></span></p>
+                <div id="demandeInfo" style="display:none; padding:10px; border:1px solid #ccc; margin-bottom:10px;">
+                    <p>Client: <span id="infoClient"></span></p>
+                    <p>Lieu: <span id="infoDistrict"></span></p>
                 </div>
 
-                <h3>Détails du Devis</h3>
-                <table id="detailsTable" class="details-table">
+                <table id="detailsTable">
                     <thead>
                         <tr>
                             <th>Libellé</th>
-                            <th>PU (Ar)</th>
-                            <th>Quantité</th>
-                            <th>Total (Ar)</th>
-                            <th>Action</th>
+                            <th>P.U</th>
+                            <th>Qtt</th>
+                            <th>Total</th>
+                            <th></th>
                         </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
-                    <tfoot>
-                        <tr class="total-row">
-                            <td colspan="3" style="text-align: right;">Montant Total Global :</td>
-                            <td id="grandTotal">0.00</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
+                    <tbody></tbody>
                 </table>
-                <button type="button" class="btn btn-success btn-add" onclick="addRow()">
-                    <i class="fas fa-plus"></i> Ajouter une ligne
-                </button>
-                
-                <div class="form-group" style="margin-top: 30px; text-align: right;">
-                    <button type="submit" class="btn btn-primary" id="btnSubmit" disabled>Enregistrer Devis</button>
+
+                <div style="margin: 20px 0; font-weight: bold;">
+                    Total: <span id="grandTotal">0.00</span> Ar
+                </div>
+
+                <div class="form-group">
+                    <button type="button" class="btn btn-secondary" onclick="addRow()">+ Ajouter ligne</button>
+                    <button type="submit" class="btn btn-primary" id="btnSubmit" disabled>Enregistrer</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-
         var contextPath = '${pageContext.request.contextPath}';
 
         function checkDemande(id) {
@@ -94,7 +81,6 @@
                 return;
             }
 
-            // contextPath est résolu par JSP, ${id} ici est une variable JS (pas JSP EL)
             fetch(contextPath + '/admin/devis/api/demande/' + id)
                 .then(response => {
                     if (!response.ok) throw new Error('Not found');
@@ -119,11 +105,11 @@
             const tbody = document.querySelector('#detailsTable tbody');
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td><input type="text" name="libelle[]" class="form-control" required></td>
-                <td><input type="number" step="0.01" name="pu[]" class="form-control text-right" required oninput="calculateRowTotal(this)"></td>
-                <td><input type="number" name="qtt[]" class="form-control text-right" required oninput="calculateRowTotal(this)"></td>
-                <td class="row-total text-right">0.00</td>
-                <td class="text-center"><i class="fas fa-times btn-remove" onclick="removeRow(this)"></i></td>
+                <td><input type="text" name="libelle[]" required placeholder="Ex: Tuyaux PVC 110mm"></td>
+                <td><input type="number" step="0.01" name="pu[]" required style="text-align: right;" oninput="calculateRowTotal(this)" placeholder="0.00"></td>
+                <td><input type="number" name="qtt[]" required style="text-align: right;" oninput="calculateRowTotal(this)" placeholder="0"></td>
+                <td class="row-total" style="text-align: right; font-weight: 500;">0.00</td>
+                <td style="text-align: center;"><i class="fas fa-trash-alt" style="color: var(--danger); cursor: pointer; opacity: 0.6;" onclick="removeRow(this)"></i></td>
             `;
             tbody.appendChild(tr);
         }
@@ -135,22 +121,21 @@
 
         function calculateRowTotal(input) {
             const tr = input.closest('tr');
-            const pu = parseFloat(tr.querySelector('input[name="pu[]"]').value) || 0;
+            let pu = parseFloat(tr.querySelector('input[name="pu[]"]').value) || 0;
             const qtt = parseFloat(tr.querySelector('input[name="qtt[]"]').value) || 0;
             
-            let total = pu * qtt;
-            
-            
+            // Logique de remise 10%
             if (pu >= 1000000) {
                 pu = pu * 0.9;
-                tr.querySelector('.row-total').style.color = '#e74c3c'; 
-                tr.querySelector('.row-total').title = 'Remise de 10% incluse';
+                tr.querySelector('.row-total').style.color = 'var(--accent)';
+                tr.querySelector('.row-total').title = 'Remise de 10% appliquée';
             } else {
                 tr.querySelector('.row-total').style.color = 'inherit';
                 tr.querySelector('.row-total').title = '';
             }
 
-            tr.querySelector('.row-total').innerText = total.toLocaleString('fr-MG', { minimumFractionDigits: 2 });
+            let total = pu * qtt;
+            tr.querySelector('.row-total').innerText = total.toLocaleString('fr-FR', { minimumFractionDigits: 2 });
             calculateGrandTotal();
         }
 

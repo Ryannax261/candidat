@@ -28,6 +28,10 @@ public class ClientService {
         return ClientDAO.findById(id).orElse(null);
     }
 
+    public long countClients() {
+        return ClientDAO.count();
+    }
+
     public void delete(int id) {
         ClientDAO.deleteById(id);
     }

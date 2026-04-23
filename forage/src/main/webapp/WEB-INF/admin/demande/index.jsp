@@ -13,8 +13,19 @@
     <jsp:include page="../../layout/navbar.jsp" />
     <div class="container">
         <div class="header-actions">
-            <h1>Liste des Demandes</h1>
-            <a href="${pageContext.request.contextPath}/admin/demande/create" class="btn btn-primary">Nouvelle Demande</a>
+            <h1>
+                <c:choose>
+                    <c:when test="${not empty filteredClient}">
+                        Demandes de : ${filteredClient.nom}
+                    </c:when>
+                    <c:otherwise>
+                        Liste des Demandes
+                    </c:otherwise>
+                </c:choose>
+            </h1>
+            <a href="${pageContext.request.contextPath}/admin/demande/create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nouvelle Demande
+            </a>
         </div>
 
         <div class="card">
@@ -32,7 +43,7 @@
                 <tbody>
                     <c:forEach var="demande" items="${demandes}">
                         <tr>
-                            <td>${demande.client.nom}</td>
+                            <td><strong>${demande.client.nom}</strong></td>
                             <td>${demande.district}</td>
                             <td>${demande.dateDemandeFormatee}</td>
                             <td>${demande.description}</td>
@@ -42,18 +53,28 @@
                                         <span class="badge">${demande.dernierStatut.statut.nom}</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <span class="badge badge-grey">Aucun</span>
+                                        <span class="badge">Aucun</span>
                                     </c:otherwise>
                                 </c:choose>
                             </td>
                             <td>
+                                <a href="${pageContext.request.contextPath}/admin/devis?demandeId=${demande.id}"
+                                   class="btn btn-sm btn-info">
+                                    <i class="fas fa-file-invoice-dollar"></i> Devis
+                                </a>
                                 <a href="${pageContext.request.contextPath}/admin/demande/edit/${demande.id}"
-                                   class="btn btn-sm btn-primary">Modifier</a>
+                                   class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
                                 <a href="${pageContext.request.contextPath}/admin/demande/${demande.id}/statut"
-                                   class="btn btn-sm btn-info">Statut</a>
+                                   class="btn btn-sm btn-info">
+                                    <i class="fas fa-step-forward"></i>
+                                </a>
                                 <a href="${pageContext.request.contextPath}/admin/demande/delete/${demande.id}"
                                    class="btn btn-sm btn-danger"
-                                   onclick="return confirm('Supprimer cette demande ?')">Supprimer</a>
+                                   onclick="return confirm('Supprimer cette demande ?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
                             </td>
                         </tr>
                     </c:forEach>

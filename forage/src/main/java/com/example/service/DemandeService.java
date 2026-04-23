@@ -1,6 +1,9 @@
 package com.example.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.HashMap;
 
 import org.springframework.stereotype.Service;
 
@@ -26,6 +29,31 @@ public class DemandeService {
 
     public List<Demande> getAll() {
         return demandeDAO.findAll();
+    }
+
+    public List<Demande> getByStatut(int statutId) {
+        return demandeDAO.findAll().stream()
+            .filter(d -> d.getDernierStatut() != null && d.getDernierStatut().getStatut().getId() == statutId)
+            .collect(Collectors.toList());
+    }
+
+    public List<Demande> getByClient(int clientId) {
+        return demandeDAO.findByClientId(clientId);
+    }
+
+    public Map<Statut, Long> getDemandeCountsByStatut() {
+        List<Statut> allStatuts = statutDAO.findAll();
+        List<Demande> allDemandes = demandeDAO.findAll();
+
+        Map<Integer, Long> countsMap = allDemandes.stream()
+            .filter(d -> d.getDernierStatut() != null)
+            .collect(Collectors.groupingBy(d -> d.getDernierStatut().getStatut().getId(), Collectors.counting()));
+
+        Map<Statut, Long> result = new HashMap<>();
+        for (Statut s : allStatuts) {
+            result.put(s, countsMap.getOrDefault(s.getId(), 0L));
+        }
+        return result;
     }
 
     public Demande getById(int id) {

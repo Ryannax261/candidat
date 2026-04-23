@@ -10,6 +10,7 @@ import com.example.service.DevisService;
 import com.example.service.DemandeService;
 import com.example.service.TypeDevisService;
 import com.example.service.StatutDevisService;
+import com.example.service.ClientService;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -24,20 +25,36 @@ public class DevisController {
     private final DemandeService demandeService;
     private final TypeDevisService typeDevisService;
     private final StatutDevisService statutDevisService;
+    private final ClientService clientService;
 
     public DevisController(DevisService service, DemandeService demandeService,
-                           TypeDevisService typeDevisService, StatutDevisService statutDevisService) {
+                           TypeDevisService typeDevisService, StatutDevisService statutDevisService,
+                           ClientService clientService) {
         this.service = service;
         this.demandeService = demandeService;
         this.typeDevisService = typeDevisService;
         this.statutDevisService = statutDevisService;
+        this.clientService = clientService;
     }
 
     @GetMapping
-    public String index(Model model) {
-        model.addAttribute("devisStatuts", service.getAllStatusHistory());
-        model.addAttribute("totalCA", service.getTotalTurnover());
+    public String index(Model model, @RequestParam(name = "demandeId", required = false) Integer demandeId) {
+        if (demandeId != null) {
+            model.addAttribute("devisStatuts", service.getStatusHistoryByDemande(demandeId));
+            model.addAttribute("filteredDemande", demandeService.getById(demandeId));
+        } else {
+            model.addAttribute("devisStatuts", service.getAllStatusHistory());
+        }
         return "admin/devis/index";
+    }
+
+    @GetMapping("/chiffre-affaire")
+    public String chiffreAffaire(Model model) {
+        model.addAttribute("totalCA", service.getTotalTurnover());
+        model.addAttribute("nbDevis", service.countDevis());
+        model.addAttribute("nbClients", clientService.countClients());
+        model.addAttribute("demandeStatutCounts", demandeService.getDemandeCountsByStatut());
+        return "admin/devis/ca";
     }
 
     @GetMapping("/create")

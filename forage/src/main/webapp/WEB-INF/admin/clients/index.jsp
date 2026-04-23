@@ -31,8 +31,15 @@
                             <td>${client.nom}</td>
                             <td>${client.contact}</td>
                             <td>
-                                <a href="${pageContext.request.contextPath}/admin/clients/edit/${client.id}" class="btn btn-sm btn-primary">Modifier</a>
-                                <a href="${pageContext.request.contextPath}/admin/clients/delete/${client.id}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ?')">Supprimer</a>
+                                <a href="${pageContext.request.contextPath}/admin/demande?clientId=${client.id}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-list"></i> Voir demandes
+                                </a>
+                                <a href="${pageContext.request.contextPath}/admin/clients/edit/${client.id}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <a href="${pageContext.request.contextPath}/admin/clients/delete/${client.id}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ?')">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
                             </td>
                         </tr>
                     </c:forEach>

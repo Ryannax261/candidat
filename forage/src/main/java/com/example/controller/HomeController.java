@@ -9,7 +9,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String index() {
-        return "redirect:/admin/clients";
+        return "redirect:/admin/devis/chiffre-affaire";
     }
 
     @GetMapping("favicon.ico")

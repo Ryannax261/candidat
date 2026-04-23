@@ -108,9 +108,17 @@ public class DevisService {
         return devisStatutDAO.findAllByOrderByIdDesc();
     }
 
+    public List<DevisStatut> getStatusHistoryByDemande(int demandeId) {
+        return devisStatutDAO.findByDevisDemandeIdOrderByIdDesc(demandeId);
+    }
+
     public Double getTotalTurnover() {
         Double total = detailDevisDAO.getTotalTurnover();
         return total != null ? total : 0.0;
+    }
+
+    public long countDevis() {
+        return devisDAO.count();
     }
 
     public void delete(int id) {

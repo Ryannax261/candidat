@@ -25,8 +25,17 @@ public class DemandeController {
     }
 
     @GetMapping
-    public String index(Model model) {
-        model.addAttribute("demandes", service.getAll());
+    public String index(Model model, 
+                        @RequestParam(name = "statutId", required = false) Integer statutId,
+                        @RequestParam(name = "clientId", required = false) Integer clientId) {
+        if (statutId != null) {
+            model.addAttribute("demandes", service.getByStatut(statutId));
+        } else if (clientId != null) {
+            model.addAttribute("demandes", service.getByClient(clientId));
+            model.addAttribute("filteredClient", clientService.getById(clientId));
+        } else {
+            model.addAttribute("demandes", service.getAll());
+        }
         return "admin/demande/index";
     }
 

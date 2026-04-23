@@ -13,12 +13,28 @@
     <jsp:include page="../../layout/navbar.jsp" />
     <div class="container">
         <div class="header-actions">
-            <h1>Liste des Devis</h1>
-            <a href="${pageContext.request.contextPath}/admin/devis/create" class="btn btn-primary">Nouveau Devis</a>
+            <h1>
+                <c:choose>
+                    <c:when test="${not empty filteredDemande}">
+                        Historique des Devis pour la demande #${filteredDemande.id} (${filteredDemande.client.nom})
+                    </c:when>
+                    <c:otherwise>
+                        Liste des Devis
+                    </c:otherwise>
+                </c:choose>
+            </h1>
+            <div>
+                <c:if test="${not empty filteredDemande}">
+                    <a href="${pageContext.request.contextPath}/admin/demande?clientId=${filteredDemande.client.id}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour aux demandes
+                    </a>
+                </c:if>
+                <a href="${pageContext.request.contextPath}/admin/devis/create" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nouveau Devis
+                </a>
+            </div>
         </div>
 
-       
-        
         <div class="card">
             <table>
                 <thead>
@@ -40,32 +56,29 @@
                                 <fmt:formatDate value="${parsedStatutDate}" pattern="dd/MM/yyyy HH:mm"/>
                             </td>
                             <td>#${ds.devis.id}</td>
-                            <td>#${ds.devis.demande.id} - ${ds.devis.demande.client.nom}</td>
-                            <td>${ds.devis.typeDevis.nom}</td>
-                            <td><fmt:formatNumber value="${ds.devis.montantTotal}" type="currency" currencySymbol="Ar"/></td>
                             <td>
-                                <span class="badge">${ds.statutDevis.nom}</span>
+                                #${ds.devis.demande.id} - ${ds.devis.demande.client.nom}
+                            </td>
+                            <td>${ds.devis.typeDevis.nom}</td>
+                            <td>
+                                <fmt:formatNumber value="${ds.devis.montantTotal}" type="currency" currencySymbol="Ar"/>
                             </td>
                             <td>
-                                <a href="${pageContext.request.contextPath}/admin/devis/show/${ds.devis.id}" class="btn btn-sm btn-info">Détail</a>
-                                <a href="${pageContext.request.contextPath}/admin/devis/delete/${ds.devis.id}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ce devis ?')">Supprimer</a>
+                                ${ds.statutDevis.nom}
+                            </td>
+                            <td>
+                                <a href="${pageContext.request.contextPath}/admin/devis/show/${ds.devis.id}" class="btn btn-sm btn-secondary">Détail</a>
+                                <a href="${pageContext.request.contextPath}/admin/devis/delete/${ds.devis.id}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer ?')">Supprimer</a>
                             </td>
                         </tr>
                     </c:forEach>
                     <c:if test="${empty devisStatuts}">
-                        <tr><td colspan="7" style="text-align:center; opacity:0.5;">Aucun devis enregistré.</td></tr>
+                        <tr><td colspan="7" style="text-align:center;">Aucun devis.</td></tr>
                     </c:if>
                 </tbody>
             </table>
         </div>
-         <div class="card">
-            <div>
-                <i class="fas fa-chart-line"></i> Chiffre d'Affaire Total du Site :
-            </div>
-            <div >
-                <fmt:formatNumber value="${totalCA}" type="currency" currencySymbol="Ar"/>
-            </div>
-        </div>
+
     </div>
 </body>
 </html>

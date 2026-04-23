@@ -16,22 +16,25 @@
             <a href="${pageContext.request.contextPath}/admin/clients" class="btn btn-secondary">Retour</a>
         </div>
         
-        <div class="card">
+        <div class="card" style="padding: 2.5rem; max-width: 600px;">
             <form action="${pageContext.request.contextPath}/admin/clients" method="post">
                 <input type="hidden" name="id" value="${client.id}">
                 
                 <div class="form-group">
                     <label for="nom">Nom</label>
-                    <input type="text" id="nom" name="nom" value="${client.nom}" required placeholder="Entrez le nom du client">
+                    <input type="text" id="nom" name="nom" value="${client.nom}" required placeholder="Ex: Jean Dupont">
                 </div>
                 
                 <div class="form-group">
                     <label for="contact">Contact</label>
-                    <input type="text" id="contact" name="contact" value="${client.contact}" required placeholder="Email ou téléphone">
+                    <input type="text" id="contact" name="contact" value="${client.contact}" required placeholder="Ex: +261 34 00 000 00">
                 </div>
                 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">${client.id == 0 ? "Enregistrer" : "Modifier"}</button>
+                <div class="form-group" style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> ${client.id == 0 ? "Enregistrer" : "Confirmer les modifications"}
+                    </button>
+                    <a href="${pageContext.request.contextPath}/admin/clients" class="btn btn-secondary">Annuler</a>
                 </div>
             </form>
         </div>

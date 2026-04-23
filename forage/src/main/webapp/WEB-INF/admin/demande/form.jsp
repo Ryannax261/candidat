@@ -28,7 +28,7 @@
                 <input type="hidden" name="id" value="${demande.id}">
 
                 <div class="form-group">
-                    <label for="client">Client</label>
+                    <label for="client">Client bénéficiaire</label>
                     <select id="client" name="client.id" required>
                         <option value="">Sélectionnez un client</option>
                         <c:forEach var="c" items="${clients}">
@@ -40,22 +40,21 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="district">District</label>
+                    <label for="district">District / Localisation</label>
                     <input type="text" id="district" name="district"
-                           value="${demande.district}" required placeholder="Entrez le district">
+                           value="${demande.district}" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Description</label>
+                    <label for="description">Description détaillée du besoin</label>
                     <textarea id="description" name="description"
-                              rows="5" required>${demande.description}</textarea>
+                                rows="5" required>${demande.description}</textarea>
                 </div>
 
                 <c:if test="${demande.id != 0}">
                     <div class="form-group">
-                        <label for="statutId">Changer le statut</label>
+                        <label for="statutId">Statut</label>
                         <select id="statutId" name="statutId" required>
-                            <option value="">Sélectionnez un statut</option>
                             <c:forEach var="statut" items="${statuts}">
                                 <option value="${statut.id}"
                                     ${demande.dernierStatut.statut.id == statut.id ? 'selected' : ''}>
@@ -63,18 +62,6 @@
                                 </option>
                             </c:forEach>
                         </select>
-                        <small>Statut actuel :
-                            <strong>${demande.dernierStatut.statut.nom}</strong>
-                        </small>
-                    </div>
-                </c:if>
-
-                <c:if test="${demande.id == 0}">
-                    <div class="form-group">
-                        <label>Statut</label>
-                        <p class="info-text">
-                            Le statut sera automatiquement défini à <strong>creer</strong>.
-                        </p>
                     </div>
                 </c:if>
 
@@ -82,6 +69,9 @@
                     <button type="submit" class="btn btn-primary">
                         ${demande.id == 0 ? "Enregistrer" : "Modifier"}
                     </button>
+                    <a href="${pageContext.request.contextPath}/admin/demande" class="btn btn-secondary">
+                        Annuler
+                    </a>
                 </div>
 
             </form>
