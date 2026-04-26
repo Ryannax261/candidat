@@ -20,11 +20,13 @@ public class DemandeService {
     private final DemandeDAO demandeDAO;
     private final DemandeStatutDAO demandeStatutDAO;
     private final StatutDAO statutDAO;
+    private final TimeService timeService;
 
-    public DemandeService(DemandeDAO demandeDAO, DemandeStatutDAO demandeStatutDAO, StatutDAO statutDAO) {
+    public DemandeService(DemandeDAO demandeDAO, DemandeStatutDAO demandeStatutDAO, StatutDAO statutDAO, TimeService timeService) {
         this.demandeDAO = demandeDAO;
         this.demandeStatutDAO = demandeStatutDAO;
         this.statutDAO = statutDAO;
+        this.timeService = timeService;
     }
 
     public List<Demande> getAll() {
@@ -72,16 +74,22 @@ public class DemandeService {
             DemandeStatut ds = new DemandeStatut();
             ds.setDemande(de);
             ds.setStatut(statut);
+            ds.setEcartTotal("-");
+            ds.setEcartOuvre("-");
             demandeStatutDAO.save(ds);
 
             return de;
         }
 
     public Demande update(Demande demande, int statutId) {
-        return update(demande, statutId, null);
+        return update(demande, statutId, null, null);
     }
 
     public Demande update(Demande demande, int statutId, String observation) {
+        return update(demande, statutId, observation, null);
+    }
+
+    public Demande update(Demande demande, int statutId, String observation, java.time.LocalDateTime dateStatut) {
         Demande updated = demandeDAO.save(demande);
 
         Statut statut = statutDAO.findById(statutId)
@@ -102,7 +110,11 @@ public class DemandeService {
             } else if (statutId == lastId) {
                 // Même statut : on met à jour la ligne existante
                 last.setObservation(observation);
-                last.setDateStatut(java.time.LocalDateTime.now());
+                if (dateStatut != null) {
+                    last.setDateStatut(dateStatut);
+                } else {
+                    last.setDateStatut(java.time.LocalDateTime.now());
+                }
                 demandeStatutDAO.save(last);
                 return updated;
             }
@@ -113,6 +125,19 @@ public class DemandeService {
         ds.setDemande(updated);
         ds.setStatut(statut);
         ds.setObservation(observation);
+        if (dateStatut != null) {
+            ds.setDateStatut(dateStatut);
+        }
+        
+        // Calcul des écarts par rapport au statut précédent
+        if (last != null) {
+            ds.setEcartTotal(timeService.formatDuration(last.getDateStatut(), ds.getDateStatut()));
+            ds.setEcartOuvre(timeService.formatWorkDuration(last.getDateStatut(), ds.getDateStatut()));
+        } else {
+            ds.setEcartTotal("-");
+            ds.setEcartOuvre("-");
+        }
+        
         demandeStatutDAO.save(ds);
 
         return updated;

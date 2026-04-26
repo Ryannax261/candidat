@@ -94,7 +94,7 @@
                 <form method="post" action="${pageContext.request.contextPath}/admin/devis/statut/${devis.id}">
                     <div class="form-group">
                         <label>Choisir un nouvel état</label>
-                        <select name="statutDevisId" style="margin-bottom: 1.5rem;">
+                        <select name="statutDevisId" style="margin-bottom: 1rem;">
                             <c:forEach var="s" items="${statuts}">
                                 <option value="${s.id}"
                                     ${devis.dernierStatut != null && devis.dernierStatut.statutDevis.id == s.id ? 'selected' : ''}>
@@ -102,6 +102,11 @@
                                 </option>
                             </c:forEach>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Date et Heure du statut</label>
+                        <input type="datetime-local" name="dateStatut" class="form-control" style="margin-bottom: 1.5rem;">
+                        <small style="display: block; margin-top: -1rem; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.75rem;">Laissez vide pour utiliser l'heure actuelle</small>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
                         <i class="fas fa-sync-alt"></i> Mettre à jour le statut
@@ -112,21 +117,38 @@
             <div class="card" style="padding: 2rem;">
                 <h3 style="margin-bottom: 1.5rem; font-weight: 500;">Historique des interventions</h3>
                 <div class="history-list">
-                    <c:forEach var="ds" items="${devis.devisStatuts}">
-                        <div style="display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid var(--bg-subtle);">
-                            <div>
-                                <span class="badge" style="background: var(--accent); color: white; border: none;">${ds.statutDevis.nom}</span>
-                                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">
-                                    Statut mis à jour par l'administration
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: 500;">${ds.dateStatut}</div>
-                            </div>
-                        </div>
-                    </c:forEach>
-                    <c:if test="${empty devis.devisStatuts}">
-                        <p style="opacity: 0.5; font-style: italic;">Aucun historique disponible.</p>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--bg-subtle);">
+                                <th style="text-align: left; padding: 0.5rem;">Statut</th>
+                                <th style="text-align: left; padding: 0.5rem;">Date</th>
+                                <th style="text-align: right; padding: 0.5rem;">Écart (Total)</th>
+                                <th style="text-align: right; padding: 0.5rem;">Écart (Ouvré)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="h" items="${history}">
+                                <tr style="border-bottom: 1px solid var(--bg-subtle); ${h.current ? 'background: #fdf8f3;' : ''}">
+                                    <td style="padding: 1rem 0.5rem;">
+                                        <span class="badge" style="background: ${h.current ? 'var(--accent)' : 'var(--text-muted)'}; color: white; border: none; font-size: 0.7rem;">
+                                            ${h.statutNom}
+                                        </span>
+                                    </td>
+                                    <td style="padding: 1rem 0.5rem; color: var(--text-muted);">
+                                        ${h.dateStatutFormatee}
+                                    </td>
+                                    <td style="padding: 1rem 0.5rem; text-align: right; font-weight: 500;">
+                                        ${h.durationTotal}
+                                    </td>
+                                    <td style="padding: 1rem 0.5rem; text-align: right; font-weight: 600; color: var(--accent);">
+                                        ${h.durationWork}
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                    <c:if test="${empty history}">
+                        <p style="opacity: 0.5; font-style: italic; padding: 1rem; text-align: center;">Aucun historique disponible.</p>
                     </c:if>
                 </div>
             </div>

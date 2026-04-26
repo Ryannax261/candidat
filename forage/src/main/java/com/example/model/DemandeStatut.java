@@ -33,6 +33,12 @@ public class DemandeStatut {
     @Column(columnDefinition = "TEXT")
     private String observation;
 
+    @Column(name = "ecart_total")
+    private String ecartTotal;
+
+    @Column(name = "ecart_ouvre")
+    private String ecartOuvre;
+
     public DemandeStatut() {}
 
     public int getId() { return id; }
@@ -54,4 +60,10 @@ public class DemandeStatut {
 
     public String getObservation() { return observation; }
     public void setObservation(String observation) { this.observation = observation; }
+
+    public String getEcartTotal() { return ecartTotal; }
+    public void setEcartTotal(String ecartTotal) { this.ecartTotal = ecartTotal; }
+
+    public String getEcartOuvre() { return ecartOuvre; }
+    public void setEcartOuvre(String ecartOuvre) { this.ecartOuvre = ecartOuvre; }
 }

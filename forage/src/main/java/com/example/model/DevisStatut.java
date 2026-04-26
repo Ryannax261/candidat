@@ -22,6 +22,12 @@ public class DevisStatut {
     @Column(name = "date_statut")
     private LocalDateTime dateStatut = LocalDateTime.now();
 
+    @Column(name = "ecart_total")
+    private String ecartTotal;
+
+    @Column(name = "ecart_ouvre")
+    private String ecartOuvre;
+
     public DevisStatut() {}
 
     public int getId() { return id; }
@@ -35,4 +41,10 @@ public class DevisStatut {
 
     public LocalDateTime getDateStatut() { return dateStatut; }
     public void setDateStatut(LocalDateTime dateStatut) { this.dateStatut = dateStatut; }
+
+    public String getEcartTotal() { return ecartTotal; }
+    public void setEcartTotal(String ecartTotal) { this.ecartTotal = ecartTotal; }
+
+    public String getEcartOuvre() { return ecartOuvre; }
+    public void setEcartOuvre(String ecartOuvre) { this.ecartOuvre = ecartOuvre; }
 }

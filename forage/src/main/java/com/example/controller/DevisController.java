@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import org.springframework.http.ResponseEntity;
+import com.example.dto.StatusHistoryDTO;
+import com.example.service.TimeService;
+import com.example.model.DevisStatut;
 
 @Controller
 @RequestMapping("/admin/devis")
@@ -66,8 +69,27 @@ public class DevisController {
 
     @GetMapping("/show/{id}")
     public String show(@PathVariable int id, Model model) {
-        model.addAttribute("devis", service.getById(id));
+        Devis devis = service.getById(id);
+        model.addAttribute("devis", devis);
         model.addAttribute("statuts", statutDevisService.getAll());
+        
+        // Utilisation de l'historique persisté
+        List<DevisStatut> rawHistory = devis.getDevisStatuts();
+        List<StatusHistoryDTO> historyDto = new ArrayList<>();
+        
+        for (DevisStatut current : rawHistory) {
+            StatusHistoryDTO dto = new StatusHistoryDTO();
+            dto.setStatutNom(current.getStatutDevis().getNom());
+            dto.setDateStatut(current.getDateStatut());
+            dto.setCurrent(devis.getDernierStatut() != null && devis.getDernierStatut().getId() == current.getId());
+            dto.setDurationTotal(current.getEcartTotal());
+            dto.setDurationWork(current.getEcartOuvre());
+            historyDto.add(dto);
+        }
+        
+        java.util.Collections.reverse(historyDto);
+        model.addAttribute("history", historyDto);
+        
         return "admin/devis/show";
     }
 
@@ -75,16 +97,15 @@ public class DevisController {
     @GetMapping("/api/demande/{id}")
     @ResponseBody
     public ResponseEntity<?> getDemandeInfo(@PathVariable int id) {
-
-        java.util.Map<String, Object> info = demandeService.getInfoDemande(id);
-        if (info == null) {
+        com.example.model.Demande d = demandeService.getById(id);
+        if (d == null) {
             return ResponseEntity.notFound().build();
         }
 
         Map<String, Object> response = new HashMap<>();
-        response.put("clientNom",   info.getOrDefault("nom_client",   info.get("NOM_CLIENT")));
-        response.put("dateDemande", String.valueOf(info.getOrDefault("date_demande", info.get("DATE_DEMANDE"))));
-        response.put("district",    info.getOrDefault("district",     info.get("DISTRICT")));
+        response.put("clientNom",   d.getClient() != null ? d.getClient().getNom() : "Inconnu");
+        response.put("dateDemande", d.getDateDemandeFormatee());
+        response.put("district",    d.getDistrict());
 
         return ResponseEntity.ok(response);
     }
@@ -128,8 +149,11 @@ public class DevisController {
 
     @PostMapping("/statut/{id}")
     public String updateStatut(@PathVariable int id,
-                               @RequestParam("statutDevisId") int statutDevisId) {
-        service.updateStatut(id, statutDevisId);
+                               @RequestParam("statutDevisId") int statutDevisId,
+                               @RequestParam(value = "dateStatut", required = false) 
+                               @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) 
+                               java.time.LocalDateTime dateStatut) {
+        service.updateStatut(id, statutDevisId, dateStatut);
         return "redirect:/admin/devis/show/" + id;
     }
 }

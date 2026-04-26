@@ -21,13 +21,16 @@ public class DevisService {
     private final DetailDevisDAO detailDevisDAO;
     private final DevisStatutDAO devisStatutDAO;
     private final StatutDevisDAO statutDevisDAO;
+    private final TimeService timeService;
 
     public DevisService(DevisDAO devisDAO, DetailDevisDAO detailDevisDAO,
-                        DevisStatutDAO devisStatutDAO, StatutDevisDAO statutDevisDAO) {
+                        DevisStatutDAO devisStatutDAO, StatutDevisDAO statutDevisDAO,
+                        TimeService timeService) {
         this.devisDAO = devisDAO;
         this.detailDevisDAO = detailDevisDAO;
         this.devisStatutDAO = devisStatutDAO;
         this.statutDevisDAO = statutDevisDAO;
+        this.timeService = timeService;
     }
 
     public List<Devis> getAll() {
@@ -85,6 +88,8 @@ public class DevisService {
         DevisStatut ds = new DevisStatut();
         ds.setDevis(savedDevis);
         ds.setStatutDevis(statutsPourType.get(0)); // premier statut = statut initial
+        ds.setEcartTotal("-");
+        ds.setEcartOuvre("-");
         devisStatutDAO.save(ds);
         
     }
@@ -93,7 +98,7 @@ public class DevisService {
         return devisDAO.findById(id).orElse(null);
     }
 
-    public void updateStatut(int devisId, int statutDevisId) {
+    public void updateStatut(int devisId, int statutDevisId, java.time.LocalDateTime dateStatut) {
         Devis devis = devisDAO.findById(devisId)
             .orElseThrow(() -> new RuntimeException("Devis introuvable : " + devisId));
         StatutDevis statut = statutDevisDAO.findById(statutDevisId)
@@ -101,6 +106,20 @@ public class DevisService {
         DevisStatut ds = new DevisStatut();
         ds.setDevis(devis);
         ds.setStatutDevis(statut);
+        if (dateStatut != null) {
+            ds.setDateStatut(dateStatut);
+        }
+        
+        // Calcul des écarts
+        DevisStatut last = devis.getDernierStatut();
+        if (last != null) {
+            ds.setEcartTotal(timeService.formatDuration(last.getDateStatut(), ds.getDateStatut()));
+            ds.setEcartOuvre(timeService.formatWorkDuration(last.getDateStatut(), ds.getDateStatut()));
+        } else {
+            ds.setEcartTotal("-");
+            ds.setEcartOuvre("-");
+        }
+        
         devisStatutDAO.save(ds);
     }
 

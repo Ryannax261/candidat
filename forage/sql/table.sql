@@ -52,6 +52,8 @@ CREATE TABLE t_demande_statut(
     statut_id INT NOT NULL,
     date_statut TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     observation TEXT,
+    ecart_total VARCHAR(50),
+    ecart_ouvre VARCHAR(50),
     FOREIGN KEY (demande_id) REFERENCES t_demande(id),
     FOREIGN KEY (statut_id) REFERENCES t_statut(id)
 );
@@ -79,6 +81,8 @@ CREATE TABLE t_devis_statut (
     devis_id INT NOT NULL,
     statut_devis_id INT NOT NULL,
     date_statut TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ecart_total VARCHAR(50),
+    ecart_ouvre VARCHAR(50),
     FOREIGN KEY (devis_id) REFERENCES t_devis(id) ON DELETE CASCADE,
     FOREIGN KEY (statut_devis_id) REFERENCES t_statut_devis(id)
 );
@@ -87,3 +91,8 @@ CREATE VIEW v_chiffre_affaire AS
 SELECT COALESCE(SUM(prix), 0) as total_ca FROM t_detail_devis;
 
 
+ALTER TABLE t_demande_statut ADD COLUMN ecart_total VARCHAR(50);
+ALTER TABLE t_demande_statut ADD COLUMN ecart_ouvre VARCHAR(50);
+
+ALTER TABLE t_devis_statut ADD COLUMN ecart_total VARCHAR(50);
+ALTER TABLE t_devis_statut ADD COLUMN ecart_ouvre VARCHAR(50);

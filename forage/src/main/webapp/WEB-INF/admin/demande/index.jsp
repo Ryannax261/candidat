@@ -32,6 +32,7 @@
             <table>
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Client</th>
                         <th>District</th>
                         <th>Date</th>
@@ -43,6 +44,7 @@
                 <tbody>
                     <c:forEach var="demande" items="${demandes}">
                         <tr>
+                            <td><strong>${demande.id}</strong></td>
                             <td><strong>${demande.client.nom}</strong></td>
                             <td>${demande.district}</td>
                             <td>${demande.dateDemandeFormatee}</td>

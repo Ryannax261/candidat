@@ -89,6 +89,11 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="dateStatut">Date et Heure du statut</label>
+                    <input type="datetime-local" name="dateStatut" id="dateStatut" class="form-control">
+                    <small class="text-muted">Laissez vide pour utiliser l'heure actuelle</small>
+                </div>
+                <div class="form-group">
                     <label for="observation">Observation</label>
                     <textarea name="observation" id="observation" class="form-control" rows="3" placeholder="Ex: Manque de budget, En attente de validation..."></textarea>
                 </div>
@@ -103,21 +108,25 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Date & Heure</th>
                         <th>Statut</th>
+                        <th>Date & Heure</th>
                         <th>Observation</th>
+                        <th style="text-align: right;">Durée (Total)</th>
+                        <th style="text-align: right;">Durée (Ouvrée)</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <c:forEach var="ds" items="${demande.demandeStatuts}">
-                        <tr>
-                            <td>${ds.dateStatutFormatee}</td>
+                    <c:forEach var="h" items="${history}">
+                        <tr style="${h.current ? 'background: #f0f7ff;' : ''}">
                             <td>
-                                <span class="badge ${ds.id == demande.dernierStatut.id ? 'badge-current' : ''}">
-                                    ${ds.statut.nom}
+                                <span class="badge ${h.current ? 'badge-current' : ''}" style="font-size: 0.8rem;">
+                                    ${h.statutNom}
                                 </span>
                             </td>
-                            <td>${not empty ds.observation ? ds.observation : '-'}</td>
+                            <td style="color: #666;">${h.dateStatutFormatee}</td>
+                            <td><small>${not empty h.observation ? h.observation : '-'}</small></td>
+                            <td style="text-align: right; font-weight: 500;">${h.durationTotal}</td>
+                            <td style="text-align: right; font-weight: 600; color: #dc3545;">${h.durationWork}</td>
                         </tr>
                     </c:forEach>
                 </tbody>

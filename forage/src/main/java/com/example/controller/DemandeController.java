@@ -8,6 +8,10 @@ import com.example.model.Demande;
 import com.example.service.ClientService;
 import com.example.service.DemandeService;
 import com.example.service.StatutService;
+import java.util.List;
+import java.util.ArrayList;
+import com.example.dto.StatusHistoryDTO;
+import com.example.model.DemandeStatut;
 
 @Controller
 @RequestMapping("/admin/demande")
@@ -78,17 +82,40 @@ public class DemandeController {
 
     @GetMapping("/{id}/statut")
     public String status(@PathVariable int id, Model model) {
-        model.addAttribute("demande", service.getById(id));
+        Demande demande = service.getById(id);
+        model.addAttribute("demande", demande);
         model.addAttribute("statuts", statutService.getAll());
+        
+        // Utilisation de l'historique persisté
+        List<DemandeStatut> rawHistory = demande.getDemandeStatuts(); 
+        List<StatusHistoryDTO> historyDto = new ArrayList<>();
+        
+        for (DemandeStatut current : rawHistory) {
+            StatusHistoryDTO dto = new StatusHistoryDTO();
+            dto.setStatutNom(current.getStatut().getNom());
+            dto.setDateStatut(current.getDateStatut());
+            dto.setObservation(current.getObservation());
+            dto.setCurrent(demande.getDernierStatut() != null && demande.getDernierStatut().getId() == current.getId());
+            dto.setDurationTotal(current.getEcartTotal());
+            dto.setDurationWork(current.getEcartOuvre());
+            historyDto.add(dto);
+        }
+        
+        java.util.Collections.reverse(historyDto);
+        model.addAttribute("history", historyDto);
+        
         return "admin/demande/statut";
     }
 
     @PostMapping("/{id}/statut")
     public String changeStatus(@PathVariable int id,
                                @RequestParam("statutId") int statutId,
-                               @RequestParam("observation") String observation) {
+                               @RequestParam("observation") String observation,
+                               @RequestParam(value = "dateStatut", required = false) 
+                               @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) 
+                               java.time.LocalDateTime dateStatut) {
         Demande demande = service.getById(id);
-        service.update(demande, statutId, observation);
+        service.update(demande, statutId, observation, dateStatut);
         return "redirect:/admin/demande/" + id + "/statut";
     }
 }

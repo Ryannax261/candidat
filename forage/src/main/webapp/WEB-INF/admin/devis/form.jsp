@@ -37,9 +37,10 @@
                     </select>
                 </div>
 
-                <div id="demandeInfo" style="display:none; padding:10px; border:1px solid #ccc; margin-bottom:10px;">
-                    <p>Client: <span id="infoClient"></span></p>
-                    <p>Lieu: <span id="infoDistrict"></span></p>
+                <div id="demandeInfo" style="display:none; padding:15px; background: var(--bg-subtle); border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid var(--accent);">
+                    <p style="margin-bottom: 0.5rem;"><strong>Client:</strong> <span id="infoClient"></span></p>
+                    <p style="margin-bottom: 0.5rem;"><strong>Date:</strong> <span id="infoDate"></span></p>
+                    <p style="margin: 0;"><strong>Lieu:</strong> <span id="infoDistrict"></span></p>
                 </div>
 
                 <table id="detailsTable">
