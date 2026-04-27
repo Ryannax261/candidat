@@ -92,6 +92,7 @@ public class DemandeController {
         
         for (DemandeStatut current : rawHistory) {
             StatusHistoryDTO dto = new StatusHistoryDTO();
+            dto.setId(current.getId());
             dto.setStatutNom(current.getStatut().getNom());
             dto.setDateStatut(current.getDateStatut());
             dto.setObservation(current.getObservation());
@@ -117,5 +118,24 @@ public class DemandeController {
         Demande demande = service.getById(id);
         service.update(demande, statutId, observation, dateStatut);
         return "redirect:/admin/demande/" + id + "/statut";
+    }
+
+    @GetMapping("/statut/edit/{statusId}")
+    public String editStatus(@PathVariable int statusId, Model model) {
+        DemandeStatut ds = service.getStatusEntryById(statusId);
+        model.addAttribute("statusEntry", ds);
+        model.addAttribute("statuts", statutService.getAll());
+        return "admin/demande/edit_statut";
+    }
+
+    @PostMapping("/statut/update/{statusId}")
+    public String updateStatus(@PathVariable int statusId,
+                               @RequestParam("statutId") int statutId,
+                               @RequestParam("observation") String observation,
+                               @RequestParam("dateStatut") 
+                               @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) 
+                               java.time.LocalDateTime dateStatut) {
+        DemandeStatut ds = service.updateStatusEntry(statusId, statutId, observation, dateStatut);
+        return "redirect:/admin/demande/" + ds.getDemande().getId() + "/statut";
     }
 }

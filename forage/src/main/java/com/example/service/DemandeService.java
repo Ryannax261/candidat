@@ -115,6 +115,19 @@ public class DemandeService {
                 } else {
                     last.setDateStatut(java.time.LocalDateTime.now());
                 }
+
+                // Recalcul des écarts par rapport au statut précédent
+                List<DemandeStatut> history = updated.getDemandeStatuts();
+                if (history.size() > 1) {
+                    // history.get(0) est 'last' car trié par dateStatut DESC
+                    DemandeStatut previous = history.get(1);
+                    last.setEcartTotal(timeService.formatDuration(previous.getDateStatut(), last.getDateStatut()));
+                    last.setEcartOuvre(timeService.formatWorkDuration(previous.getDateStatut(), last.getDateStatut()));
+                } else {
+                    last.setEcartTotal("-");
+                    last.setEcartOuvre("-");
+                }
+
                 demandeStatutDAO.save(last);
                 return updated;
             }
@@ -145,5 +158,39 @@ public class DemandeService {
 
     public void delete(int id) {
         demandeDAO.deleteById(id);
+    }
+
+    public DemandeStatut getStatusEntryById(int id) {
+        return demandeStatutDAO.findById(id).orElseThrow(() -> new RuntimeException("Entrée d'historique introuvable : " + id));
+    }
+
+    @org.springframework.transaction.annotation.Transactional
+    public DemandeStatut updateStatusEntry(int statusEntryId, int statutId, String observation, java.time.LocalDateTime dateStatut) {
+        DemandeStatut current = getStatusEntryById(statusEntryId);
+        Statut newStatut = statutDAO.findById(statutId).orElseThrow(() -> new RuntimeException("Statut introuvable"));
+        
+        current.setStatut(newStatut);
+        current.setObservation(observation);
+        current.setDateStatut(dateStatut);
+        demandeStatutDAO.save(current);
+        
+        // Recalculer l'historique complet pour cette demande pour maintenir la cohérence des durées
+        Demande demande = current.getDemande();
+        List<DemandeStatut> history = demandeStatutDAO.findByDemandeIdOrderByDateStatutAsc(demande.getId());
+            
+        for (int i = 0; i < history.size(); i++) {
+            DemandeStatut ds = history.get(i);
+            if (i == 0) {
+                ds.setEcartTotal("-");
+                ds.setEcartOuvre("-");
+            } else {
+                DemandeStatut prev = history.get(i - 1);
+                ds.setEcartTotal(timeService.formatDuration(prev.getDateStatut(), ds.getDateStatut()));
+                ds.setEcartOuvre(timeService.formatWorkDuration(prev.getDateStatut(), ds.getDateStatut()));
+            }
+            demandeStatutDAO.save(ds);
+        }
+        
+        return current;
     }
 }

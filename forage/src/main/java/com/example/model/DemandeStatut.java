@@ -58,6 +58,11 @@ public class DemandeStatut {
         return dateStatut.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 
+    public String getDateStatutForInput() {
+        if (dateStatut == null) return "";
+        return dateStatut.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
+
     public String getObservation() { return observation; }
     public void setObservation(String observation) { this.observation = observation; }
 

@@ -3,12 +3,16 @@ package com.example.dto;
 import java.time.LocalDateTime;
 
 public class StatusHistoryDTO {
+    private int id;
     private String statutNom;
     private LocalDateTime dateStatut;
     private String observation;
     private String durationTotal;
     private String durationWork;
     private boolean isCurrent;
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
     public StatusHistoryDTO() {}
 

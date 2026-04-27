@@ -103,15 +103,40 @@ public class DevisService {
             .orElseThrow(() -> new RuntimeException("Devis introuvable : " + devisId));
         StatutDevis statut = statutDevisDAO.findById(statutDevisId)
             .orElseThrow(() -> new RuntimeException("StatutDevis introuvable : " + statutDevisId));
+
+        DevisStatut last = devis.getDernierStatut();
+
+        if (last != null && last.getStatutDevis().getId() == statutDevisId) {
+            // Même statut : on met à jour la ligne existante
+            if (dateStatut != null) {
+                last.setDateStatut(dateStatut);
+            } else {
+                last.setDateStatut(java.time.LocalDateTime.now());
+            }
+
+            // Recalcul des écarts par rapport au statut précédent
+            List<DevisStatut> history = devis.getDevisStatuts();
+            if (history.size() > 1) {
+                DevisStatut previous = history.get(1);
+                last.setEcartTotal(timeService.formatDuration(previous.getDateStatut(), last.getDateStatut()));
+                last.setEcartOuvre(timeService.formatWorkDuration(previous.getDateStatut(), last.getDateStatut()));
+            } else {
+                last.setEcartTotal("-");
+                last.setEcartOuvre("-");
+            }
+
+            devisStatutDAO.save(last);
+            return;
+        }
+
         DevisStatut ds = new DevisStatut();
         ds.setDevis(devis);
         ds.setStatutDevis(statut);
         if (dateStatut != null) {
             ds.setDateStatut(dateStatut);
         }
-        
+
         // Calcul des écarts
-        DevisStatut last = devis.getDernierStatut();
         if (last != null) {
             ds.setEcartTotal(timeService.formatDuration(last.getDateStatut(), ds.getDateStatut()));
             ds.setEcartOuvre(timeService.formatWorkDuration(last.getDateStatut(), ds.getDateStatut()));
@@ -119,7 +144,7 @@ public class DevisService {
             ds.setEcartTotal("-");
             ds.setEcartOuvre("-");
         }
-        
+
         devisStatutDAO.save(ds);
     }
 

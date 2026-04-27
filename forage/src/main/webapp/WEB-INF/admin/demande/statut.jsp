@@ -113,6 +113,7 @@
                         <th>Observation</th>
                         <th style="text-align: right;">Durée (Total)</th>
                         <th style="text-align: right;">Durée (Ouvrée)</th>
+                        <th style="text-align: center;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -127,6 +128,11 @@
                             <td><small>${not empty h.observation ? h.observation : '-'}</small></td>
                             <td style="text-align: right; font-weight: 500;">${h.durationTotal}</td>
                             <td style="text-align: right; font-weight: 600; color: #dc3545;">${h.durationWork}</td>
+                            <td style="text-align: center;">
+                                <a href="${pageContext.request.contextPath}/admin/demande/statut/edit/${h.id}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
                         </tr>
                     </c:forEach>
                 </tbody>

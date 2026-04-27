@@ -9,4 +9,5 @@ import com.example.model.Statut;
 @Repository
 public interface DemandeStatutDAO extends JpaRepository<DemandeStatut, Integer> {
     void deleteByStatut(Statut statut);
+    java.util.List<DemandeStatut> findByDemandeIdOrderByDateStatutAsc(int demandeId);
 }
